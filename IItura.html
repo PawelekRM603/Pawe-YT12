@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+  <meta charset="UTF-8">
+  <title>Kalkulator II tury wyborów 2025</title>
+  <style>
+    body { font-family: Arial, sans-serif; max-width: 1000px; margin: auto; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-bottom: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    input[type="number"] { width: 60px; }
+    #results { font-size: 1.2em; }
+  </style>
+</head>
+<body>
+  <h1>Kalkulator II tury wyborów prezydenckich 2025</h1>
+  <p>Wprowadź, jak rozłoży się elektorat kandydatów z I tury w II turze (w %). Suma dla każdego kandydata powinna wynosić 100%.</p>
+  <table>
+    <thead>
+      <tr>
+        <th>Kandydat</th>
+        <th>Głosy</th>
+        <th>Na Trzaskowskiego (%)</th>
+        <th>Na Nawrockiego (%)</th>
+        <th>Nie głosuje (%)</th>
+      </tr>
+    </thead>
+    <tbody id="input-rows">
+      <!-- Wiersze zostaną dodane przez JavaScript -->
+    </tbody>
+  </table>
+  <button onclick="calculateResults()">Oblicz wyniki II tury</button>
+
+  <div id="results"></div>
+
+  <script>
+    const candidates = [
+      { name: "Rafał Kazimierz Trzaskowski", votes: 6147797 },
+      { name: "Karol Tadeusz Nawrocki", votes: 5790804 },
+      { name: "Sławomir Jerzy Mentzen", votes: 2902448 },
+      { name: "Grzegorz Michał Braun", votes: 1242917 },
+      { name: "Szymon Franciszek Hołownia", votes: 978901 },
+      { name: "Adrian Tadeusz Zandberg", votes: 952832 },
+      { name: "Magdalena Agnieszka Biejat", votes: 829361 },
+      { name: "Krzysztof Jakub Stanowski", votes: 243479 },
+      { name: "Joanna Senyszyn", votes: 214198 },
+      { name: "Marek Jakubiak", votes: 150698 },
+      { name: "Artur Bartoszewicz", votes: 95640 },
+      { name: "Maciej Maciak", votes: 36371 },
+      { name: "Marek Marian Woch", votes: 18338 }
+    ];
+
+    const inputRows = document.getElementById("input-rows");
+
+    candidates.forEach((cand, index) => {
+      const row = document.createElement("tr");
+      row.innerHTML = `
+        <td>${cand.name}</td>
+        <td>${cand.votes.toLocaleString()}</td>
+        <td><input type="number" id="t-${index}" value="${cand.name.includes('Trzaskowski') ? 100 : 0}" min="0" max="100"></td>
+        <td><input type="number" id="n-${index}" value="${cand.name.includes('Nawrocki') ? 100 : 0}" min="0" max="100"></td>
+        <td><input type="number" id="a-${index}" value="${cand.name.includes('Trzaskowski') || cand.name.includes('Nawrocki') ? 0 : 100}" min="0" max="100"></td>
+      `;
+      inputRows.appendChild(row);
+    });
+
+    function calculateResults() {
+      let totalTrzaskowski = 0;
+      let totalNawrocki = 0;
+      let totalAbstain = 0;
+
+      candidates.forEach((cand, index) => {
+        const percentT = parseFloat(document.getElementById(`t-${index}`).value) || 0;
+        const percentN = parseFloat(document.getElementById(`n-${index}`).value) || 0;
+        const percentA = parseFloat(document.getElementById(`a-${index}`).value) || 0;
+        const sum = percentT + percentN + percentA;
+
+        if (sum !== 100) {
+          alert(`Suma procentów dla kandydata "${cand.name}" wynosi ${sum}%. Powinna wynosić 100%.`);
+          return;
+        }
+
+        totalTrzaskowski += cand.votes * percentT / 100;
+        totalNawrocki += cand.votes * percentN / 100;
+        totalAbstain += cand.votes * percentA / 100;
+      });
+
+      const totalVotes = totalTrzaskowski + totalNawrocki;
+      const pctT = (totalTrzaskowski / totalVotes * 100).toFixed(2);
+      const pctN = (totalNawrocki / totalVotes * 100).toFixed(2);
+
+      document.getElementById("results").innerHTML = `
+        <h2>Wyniki II tury:</h2>
+        <p><strong>Rafał Trzaskowski:</strong> ${Math.round(totalTrzaskowski).toLocaleString()} głosów (${pctT}%)</p>
+        <p><strong>Karol Nawrocki:</strong> ${Math.round(totalNawrocki).toLocaleString()} głosów (${pctN}%)</p>
+        <p><strong>Nie głosowało:</strong> ${Math.round(totalAbstain).toLocaleString()} osób</p>
+      `;
+    }
+  </script>
+</body>
+</html>
